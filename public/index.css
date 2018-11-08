@@ -1,0 +1,12 @@
+body {
+    position: relative;
+}
+.pub  > #video, .pub > #canvas {
+    position: absolute;
+}
+
+#sendCanvas {
+    left: 400px;
+    position: absolute;
+    display: none;
+}

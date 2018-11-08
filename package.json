@@ -9,6 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "noble": "^1.9.1"
+    "bluetooth-hci-socket": "^0.5.1",
+    "express": "^4.16.4",
+    "log": "^1.4.0",
+    "noble": "^1.9.1",
+    "opn": "^5.4.0",
+    "socket.io": "^2.1.1"
   }
 }
