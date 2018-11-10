@@ -5,6 +5,15 @@ body {
     position: absolute;
 }
 
+#img-container {
+    position: relative;
+}
+
+.rect {
+    position: absolute;
+    border: 2px solid #fff;
+}
+
 #sendCanvas {
     left: 400px;
     position: absolute;

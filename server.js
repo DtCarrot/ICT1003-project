@@ -19,13 +19,17 @@ app.get('/pub', function(req, res) {
   res.redirect('index.html') //para archivos estaticos
 })
 
-io.on('connection', function(socket) {
-  socket.on('stream', function(image) {
+io.on('connection', socket => {
+  socket.on('stream', image => {
     socket.broadcast.emit('stream', image)
+  })
+  socket.on('control', control => {
+    // User enter key
+    console.log(control)
   })
 })
 
 http.listen(port, function() {
   log.info('Servidor escuchando por el puerto %s', port)
-  opn('http://localhost:3000')
+  //opn('http://localhost:3000')
 })

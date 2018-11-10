@@ -37,7 +37,7 @@ const moveBackward = () => {
 
 const moveLeft = () => {
   // Turn left so Motor A needs to be slower
-  motorA.pwmWrite(motorAPWM - 60)
+  motorA.pwmWrite(motorAPWM / 2)
   motorB.pwmWrite(motorAPWM)
   // Move forward
   pinA.digitalWrite(1)
@@ -49,7 +49,7 @@ const moveLeft = () => {
 const moveRight = () => {
   motorA.pwmWrite(motorAPWM)
   // Turn left so Motor A needs to be slower
-  motorB.pwmWrite(motorAPWM - 60)
+  motorB.pwmWrite(motorAPWM / 2)
   // Move forward
   pinA.digitalWrite(1)
   pinB.digitalWrite(0)
@@ -65,4 +65,29 @@ const stop = () => {
   pinB.digitalWrite(0)
   pinC.digitalWrite(0)
   pinD.digitalWrite(0)
+}
+
+module.exports = {
+  move: action => {
+    switch (action) {
+      case 'STOP':
+        stop()
+        break
+      case 'F':
+        moveForward()
+        break
+      case 'FL':
+        moveLeft()
+        break
+      case 'FR':
+        moveRight()
+        break
+      case 'B':
+        moveBackward()
+        break
+      case 'STOP':
+        stop()
+        break
+    }
+  },
 }
