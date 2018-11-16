@@ -30,11 +30,43 @@ var socket = io()
 socket.on('stream', function(image) {
   img.src = image
   var log = document.getElementById('logger')
-  $('#logger').text(image)
   if (imageValid) {
     tracking.track('#play', tracker, { camera: true })
   }
   imageValid = true
+})
+var carElement = $('#car-img').css({ 'transform': 'rotate(180deg)'})
+function setTitle(title, bgColor) {
+  var dirTitle = $('.car-dir')
+  dirTitle.html(title)
+}
+var red = '#e74c3c'
+var green = '#2ecc71'
+socket.on('car_move', function(carDir) {
+  console.log('Dir: ', carDir)
+  var carElement = $('#car-img')
+  switch(carDir) {
+    case 'F':
+    carElement.css({'transform': 'rotate(180deg)'})
+    setTitle('Forward', green)
+    break
+    case 'FR':
+    carElement.css({'transform': 'rotate(215deg)'})
+    setTitle('Forward <br>right', green)
+    break
+    case 'FL':
+    carElement.css({'transform': 'rotate(145deg)'})
+    setTitle('Forward <br>left', green)
+    break
+    case 'B':
+    carElement.css({'transform': 'rotate(0deg)'})
+    setTitle('Back', green)
+    break
+    case 'STOP':
+    carElement.css({'transform': 'rotate(180deg)'})
+    setTitle('Stop', red)
+    break
+  }
 })
 
 var LEFT_KEY = 37

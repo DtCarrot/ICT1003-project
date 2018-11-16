@@ -1,3 +1,4 @@
+let socket
 const Gpio = require('pigpio').Gpio
 // Define the Gpio pins that connect to the 2 motors
 const pinANo = 26
@@ -12,12 +13,13 @@ const pinC = new Gpio(pinCNo, { mode: Gpio.OUTPUT })
 const pinD = new Gpio(pinDNo, { mode: Gpio.OUTPUT })
 const motorA = new Gpio(enMotorA, { mode: Gpio.OUTPUT })
 const motorB = new Gpio(enMotorB, { mode: Gpio.OUTPUT })
-let motorAPWM = 200
-let motorBPWM = 200
+let fastPWM = 200
+let slowPWM = 70
 
 const moveForward = () => {
-  motorA.pwmWrite(motorAPWM)
-  motorB.pwmWrite(motorAPWM)
+
+  motorA.pwmWrite(fastPWM)
+  motorB.pwmWrite(fastPWM)
   // Move forward
   pinA.digitalWrite(1)
   pinB.digitalWrite(0)
@@ -26,8 +28,8 @@ const moveForward = () => {
 }
 
 const moveBackward = () => {
-  motorA.pwmWrite(motorAPWM)
-  motorB.pwmWrite(motorAPWM)
+  motorA.pwmWrite(fastPWM)
+  motorB.pwmWrite(fastPWM)
   // Move backwards based on truth table
   pinA.digitalWrite(0)
   pinB.digitalWrite(1)
@@ -37,8 +39,8 @@ const moveBackward = () => {
 
 const moveLeft = () => {
   // Turn left so Motor A needs to be slower
-  motorA.pwmWrite(motorAPWM / 2)
-  motorB.pwmWrite(motorAPWM)
+  motorA.pwmWrite(slowPWM)
+  motorB.pwmWrite(fastPWM)
   // Move forward
   pinA.digitalWrite(1)
   pinB.digitalWrite(0)
@@ -47,9 +49,9 @@ const moveLeft = () => {
 }
 
 const moveRight = () => {
-  motorA.pwmWrite(motorAPWM)
+  motorA.pwmWrite(fastPWM)
   // Turn left so Motor A needs to be slower
-  motorB.pwmWrite(motorAPWM / 2)
+  motorB.pwmWrite(slowPWM)
   // Move forward
   pinA.digitalWrite(1)
   pinB.digitalWrite(0)
@@ -67,27 +69,40 @@ const stop = () => {
   pinD.digitalWrite(0)
 }
 
-module.exports = {
-  move: action => {
-    switch (action) {
-      case 'STOP':
+module.exports = (io) =>  {
+  if(io != null) {
+    io.on('connection', ioSocket => {
+      console.log('Setting socket for car')
+      socket = ioSocket
+    })
+  }
+  return {
+    move: action => {
+      if(socket) {
+        console.log('Broadcasting')
+	socket.emit('car_move', action)
+      }
+      console.log('Curr action: ', action)
+      switch (action) {
+        case 'STOP':
         stop()
         break
-      case 'F':
+        case 'F':
         moveForward()
         break
-      case 'FL':
+        case 'FL':
         moveLeft()
         break
-      case 'FR':
+        case 'FR':
         moveRight()
         break
-      case 'B':
+        case 'B':
         moveBackward()
         break
-      case 'STOP':
-        stop()
+        default:
+        console.log('Invalid action: ', action)
         break
+      }
     }
-  },
+  }
 }
