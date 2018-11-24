@@ -1,9 +1,20 @@
 var img = document.getElementById('play')
 var tracker = new tracking.ObjectTracker('face')
 var imageValid = false
+var alertStatus = false
+var socket = io()
 tracker.setInitialScale(4)
 tracker.setStepSize(2)
 tracker.setEdgesDensity(0.1)
+
+function updateButtonStatus(alertStatus) {
+  if(alertStatus) {
+    $('#alertButton').html('Stop alert')
+  } else {
+    $('#alertButton').html('Start alert')
+  }
+}
+
 
 function updateFaceRegion(x, y, w, h) {
   var rect
@@ -20,13 +31,16 @@ function updateFaceRegion(x, y, w, h) {
 }
 
 tracker.on('track', function(event) {
-  console.log('Deteted')
+  console.log('Detected track')
+  if(!socket) return
+  socket.emit('light', true)
+  alertStatus = true
+  updateButtonStatus(alertStatus)
   event.data.forEach(function(rect) {
     updateFaceRegion(rect.x, rect.y, rect.width, rect.height)
   })
 })
 
-var socket = io()
 socket.on('stream', function(image) {
   img.src = image
   var log = document.getElementById('logger')
@@ -42,27 +56,39 @@ function setTitle(title, bgColor) {
 }
 var red = '#e74c3c'
 var green = '#2ecc71'
+socket.on('bleStatus', function(bleStatus) { 
+  console.log('Current ble status: ', bleStatus)
+  var title = 'Bluetooth is'
+  title += bleStatus ? ' connected.' : ' not connected.'
+  $('#ble-status').html(title)
+})
+
 socket.on('car_move', function(carDir) {
   console.log('Dir: ', carDir)
   var carElement = $('#car-img')
   switch(carDir) {
     case 'F':
+    responsiveVoice.speak('Going straight')
     carElement.css({'transform': 'rotate(180deg)'})
     setTitle('Forward', green)
     break
     case 'FR':
+    responsiveVoice.speak('Turning right')
     carElement.css({'transform': 'rotate(215deg)'})
     setTitle('Forward <br>right', green)
     break
     case 'FL':
+    responsiveVoice.speak('Turning left')
     carElement.css({'transform': 'rotate(145deg)'})
     setTitle('Forward <br>left', green)
     break
     case 'B':
+    responsiveVoice.speak('Going back')
     carElement.css({'transform': 'rotate(0deg)'})
     setTitle('Back', green)
     break
     case 'STOP':
+    responsiveVoice.speak('Stopping')
     carElement.css({'transform': 'rotate(180deg)'})
     setTitle('Stop', red)
     break
@@ -99,4 +125,18 @@ $(document).keydown(function(e) {
       socket.emit('control', 'STOP')
       break
   }
+})
+
+
+$('#alertButton').click(function(e) {
+  // When alert button has been clicked
+  console.log('Alert btn has been clicked') 
+  alertStatus = !alertStatus
+  socket.emit('light', alertStatus)
+  if(alertStatus) {
+    $('#alertButton').removeClass('btn-danger').addClass('btn-success')
+  } else {
+    $('#alertButton').removeClass('btn-success').addClass('btn-danger')
+  }
+  updateButtonStatus(alertStatus)
 })

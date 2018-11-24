@@ -6,6 +6,8 @@
         <script src="./tracking-min.js"></script>
         <script src="./data/face-min.js"></script>
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script src='https://code.responsivevoice.org/responsivevoice.js'></script>
+
 	<style>
         body { background-color: #f5f5f5; }
 	.navbar-link { color: #fff; }
@@ -39,7 +41,7 @@
 			</div>
 			 </div>
 		 </div>
-		 <div id="grid-container" class="col-7">
+		 <div id="grid-container" class="col-3">
 			 <div class="grid-container-border border border-secondary">
 				 <h4 class="grid-title">Directions</h4>
 				 <!-- Display car image -->
@@ -49,6 +51,22 @@
 
 			 </div>
 		 </div>
+		 <div id="grid-container" class="col-4">
+			 <div class="grid-container-border border border-secondary">
+				 <h4 class="grid-title">Connectivity</h4>
+				 <!-- Display car image -->
+				 <!-- findicons.com/icon/78154/red_little_car -->
+				 <p id="ble-status"/>
+			 </div>
+		</div>
+		 <div id="grid-container" class="col-4">
+			 <div class="grid-container-border border border-secondary">
+				 <h4 class="grid-title">Warning</h4>
+				 <!-- Display car image -->
+				 <!-- findicons.com/icon/78154/red_little_car -->
+				 <button id="alertButton" class="btn btn-danger">Alert</button>
+			 </div>
+		</div>
 	 </div>
 	 </div>
         <div id="logger"></div>

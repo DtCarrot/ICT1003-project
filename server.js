@@ -1,3 +1,9 @@
+/*
+ * Main entry for the server 
+ * 
+ * 
+ * 
+ */
 var express = require('express')
 const {exec} = require('child_process')
 var app = new express()
@@ -5,8 +11,10 @@ var opn = require('opn')
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var car = require('./carcontrol')(io)
+var light = require('./ledcontrol')(io)
 console.log('Car fn: ', car)
-require('./ble')
+require('./ble')(io)
+require('./ultrasonic')
 
 var Log = require('log'),
   log = new Log('debug')
@@ -35,7 +43,7 @@ io.on('connection', socket => {
 })
 
 http.listen(port, () => {
-  log.info('Servidor escuchando por el puerto %s', port)
+  log.info('Starting on %s', port)
   log.info('Preparing to exec')
   exec('DISPLAY=:0 sudo chromium-browser http://localhost:3000 --no-sandbox')
 
@@ -45,5 +53,6 @@ http.listen(port, () => {
 process.on('SIGINT', function() {
     console.log("Caught interrupt signal");
     car.move('STOP')
+    light.stop()
     process.exit();
 });

@@ -1,5 +1,8 @@
 const noble = require('noble')
 const carcontrol = require('./carcontrol')(null)
+let bleConnected = false
+// Store the current socket information
+let socket;
 
 const receivedServicesAndCharacteristics = (err, services, characteristics) => {
   console.log('Discovered services and characteristics', characteristics[0])
@@ -41,6 +44,10 @@ const connectAndSetUp = peripheral => {
       console.error(`Error in connecting to devices ${err}`)
     }
     console.log('Connected to', peripheral.id)
+    bleConnected = true
+    if(socket) { 
+      socket.emit('bleStatus', bleConnected)
+    }
 
     peripheral.discoverAllServicesAndCharacteristics(
       receivedServicesAndCharacteristics,
@@ -49,6 +56,10 @@ const connectAndSetUp = peripheral => {
 
   peripheral.on('disconnect', () => {
     noble.startScanning([], true)
+    bleConnected = false
+    if(socket) {
+      socket.emit('bleStatus', bleConnected)
+    }
     console.log('disconnected')
   })
 }
@@ -70,7 +81,7 @@ noble.on('discover', peripheral => {
   const address = peripheral.address
   // Need to change to peripheral id in the event
   // of multiple 'BlueNRG'
-  console.log("Name: ", peripheral)
+  //console.log("Name: ", peripheral)
 
   if (address == 'e2:fc:41:3e:6b:e5') {
     noble.stopScanning()
@@ -79,3 +90,14 @@ noble.on('discover', peripheral => {
     connectAndSetUp(peripheral)
   }
 })
+
+
+module.exports = (io) => {
+  if(io != null) {
+    io.on('connection', ioSocket => {
+      console.log('Connected to ble')
+      socket = ioSocket
+      socket.emit('bleStatus', bleConnected)
+    })
+  }
+}
