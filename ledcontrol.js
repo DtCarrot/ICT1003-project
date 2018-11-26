@@ -5,6 +5,7 @@ const LIGHT_HIGH = 200
 let socket
 
 const lightUp = (lightStatus) => {
+	console.log('Current light up status: ', lightStatus)
   if(lightStatus) {
     led.pwmWrite(LIGHT_HIGH)
   } else {

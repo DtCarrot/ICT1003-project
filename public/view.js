@@ -33,6 +33,8 @@ function updateFaceRegion(x, y, w, h) {
 tracker.on('track', function(event) {
   console.log('Detected track')
   if(!socket) return
+  // Check if face detected
+  if(event.data.length < 1) return
   socket.emit('light', true)
   alertStatus = true
   updateButtonStatus(alertStatus)
@@ -62,6 +64,10 @@ socket.on('bleStatus', function(bleStatus) {
   title += bleStatus ? ' connected.' : ' not connected.'
   $('#ble-status').html(title)
 })
+
+socket.on('temp', function(temp) {
+	$('#rpi-temperature').html(temp)
+}) 
 
 socket.on('car_move', function(carDir) {
   console.log('Dir: ', carDir)

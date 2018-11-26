@@ -21,8 +21,6 @@ function loadFail() {
 }
 function viewVideo(video, context) {
   context.drawImage(video, 0, 0, context.width, context.height)
-  //para trasmitir las imagenes como cadena,  webp es un formato parecido a png
-
   console.log('Width: ', context.width)
   socket.emit('stream', canvas.toDataURL('image/webp'))
 }
@@ -37,15 +35,15 @@ $(function() {
   }
   setInterval(function() {
     viewVideo(video, sendContext)
-  }, 120)
+  }, 30)
 })
-
 var tracker = new tracking.ObjectTracker('face')
 tracker.setInitialScale(4)
 tracker.setStepSize(2)
 tracker.setEdgesDensity(0.1)
 tracking.track('#video', tracker, { camera: true })
 tracker.on('track', function(event) {
+	console.log('Tracked')
   context.clearRect(0, 0, canvas.width, canvas.height)
   event.data.forEach(function(rect) {
     context.strokeStyle = '#a64ceb'

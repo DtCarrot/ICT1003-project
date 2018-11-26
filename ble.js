@@ -1,3 +1,10 @@
+/*
+ * 	This file manages the ble connection for the application.
+ * 	
+ * 
+ * 
+ */
+
 const noble = require('noble')
 const carcontrol = require('./carcontrol')(null)
 let bleConnected = false
@@ -25,19 +32,12 @@ const receivedServicesAndCharacteristics = (err, services, characteristics) => {
       console.log('Subscribed for echoCharacteristic notifications')
     }
   })
+}
 
   // create an interval to send data to the service
   let count = 0
-  /*
-  setInterval(() => {
-    count++
-    const message = new Buffer('hello, ble ' + count, 'utf-8')
-    console.log("Sending:  '" + message + "'")
-    //echoCharacteristic.write(message);
-  }, 2500)
-  */
-}
 
+// This function will send a connect signal to the tinycircuit ble device.
 const connectAndSetUp = peripheral => {
   peripheral.connect(err => {
     if (err) {
@@ -54,10 +54,13 @@ const connectAndSetUp = peripheral => {
     )
   })
 
+// 	When the bluetooth device is about to disconnect
   peripheral.on('disconnect', () => {
+	  // We need to start scanning again. It could be a temporary disconnection.
     noble.startScanning([], true)
     bleConnected = false
     if(socket) {
+		// Update the socket so we can update the bluetooth connectivity on the GUI 
       socket.emit('bleStatus', bleConnected)
     }
     console.log('disconnected')
@@ -75,16 +78,15 @@ noble.on('stateChange', state => {
   }
 })
 
+// When a new device has been discovered
 noble.on('discover', peripheral => {
   // connect to the first peripheral that is scanned
   const name = peripheral.advertisement.localName
   const address = peripheral.address
-  // Need to change to peripheral id in the event
-  // of multiple 'BlueNRG'
-  //console.log("Name: ", peripheral)
-
+  // We only connect to the ble device with the given address 
   if (address == 'e2:fc:41:3e:6b:e5') {
-    noble.stopScanning()
+	  // Stop scanning as we have found the device we want to connect to
+	noble.stopScanning()
     console.log(peripheral)
     console.log(`Connecting to '${name}' ${peripheral.id}`)
     connectAndSetUp(peripheral)
@@ -97,6 +99,7 @@ module.exports = (io) => {
     io.on('connection', ioSocket => {
       console.log('Connected to ble')
       socket = ioSocket
+		// Update the socket so we can update the bluetooth connectivity on the GUI 
       socket.emit('bleStatus', bleConnected)
     })
   }
